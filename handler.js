@@ -1,27 +1,57 @@
 const { graphql, buildSchema } = require('graphql');
 
-// // Construct a schema, using GraphQL schema language
-var schema = buildSchema(`
+module.exports.graphql = async (event, context) => {
+  const graphqlPayload = JSON.parse(event.body);
+  var schema = buildSchema(`
   type Query {
-    hello: String
+    setlist(artist: String): Setlist,
+    artist: Artist,
+    song: Song
+  }
+  type Setlist {
+    id: String,
+    name: String,
+    songs: [Song]
+  }
+  type Song {
+    id: String,
+    name: String,
+    setlist: [Setlist]
+  }
+  type Artist {
+    id: String,
+    name: String,
+    songs: [Song],
+    setlists: [Setlist]
   }
 `);
 
-// // The root provides a resolver function for each API endpoint
-var root = {
-  hello: () => {
-    return "Hello world!";
-  }
-};
+  const getSongs = () => [{ name: 'Run to the hills' }, { name: 'Sea of madness' }];
+  const getSetlists = () => [{ name: 'thesetlist' }];
 
-// // Run the GraphQL query '{ hello }' and print out the response
-graphql(schema, "{ hello }", root).then(response => {
-  console.log(response);
-  return {de: 'rp'};
-});
+  const root = {
+    setlist: {
+      id: (obj, args) => {
+        console.log(obj, args);
+        return '1';
+      },
+      name: () => 'ho',
+      songs: (obj, args, context) => {
+        console.log(obj, args);
+        return getSongs();
+      }
+    },
+    song: (obj, args) => {
+      setlist: () => {
+        return getSetlists();
+      };
+    }
+  };
 
-module.exports.graphql = async (event, context) => {
-  console.log(event, context);
+  return {
+    statusCode: 200,
+    body: JSON.stringify(await graphql(schema, graphqlPayload.query, root))
+  };
 };
 
 module.exports.hello = async (event, context) => {
