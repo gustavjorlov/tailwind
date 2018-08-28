@@ -7,6 +7,8 @@ service: tailwind # NOTE: update this with your service name
 provider:
   name: aws
   runtime: nodejs8.10
+  profile: tailwind
+  region: eu-west-1
 
 plugins:
   - serverless-webpack
