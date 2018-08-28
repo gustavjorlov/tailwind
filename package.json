@@ -1,7 +1,11 @@
 {
+  "scripts": {
+    "start": "serverles offline start"
+  },
   "devDependencies": {
     "@babel/core": "7.0.0",
     "@babel/preset-env": "7.0.0",
+    "serverless": "1.30.2",
     "serverless-offline": "3.25.9",
     "serverless-webpack": "5.2.0",
     "webpack": "4.17.1"
