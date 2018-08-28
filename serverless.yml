@@ -48,15 +48,18 @@ plugins:
 #    - exclude-me-dir/**
 
 functions:
+  graphql:
+    handler: handler.graphql
+    events:
+      - http:
+          path: /graphql
+          method: post
   hello:
     handler: handler.hello
     events:
       - http:
           path: /
           method: get
-      - http:
-          path: /graphql
-          method: post
 
 
 #    The following are a few example events you can configure
