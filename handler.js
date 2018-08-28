@@ -1,13 +1,9 @@
 const { graphql, buildSchema } = require('graphql');
+const { makeExecutableSchema } = require('graphql-tools');
 
 module.exports.graphql = async (event, context) => {
   const graphqlPayload = JSON.parse(event.body);
-  var schema = buildSchema(`
-  type Query {
-    setlist(artist: String): Setlist,
-    artist: Artist,
-    song: Song
-  }
+  const typeDefs = `
   type Setlist {
     id: String,
     name: String,
@@ -16,7 +12,7 @@ module.exports.graphql = async (event, context) => {
   type Song {
     id: String,
     name: String,
-    setlist: [Setlist]
+    setlist: Setlist
   }
   type Artist {
     id: String,
@@ -24,33 +20,50 @@ module.exports.graphql = async (event, context) => {
     songs: [Song],
     setlists: [Setlist]
   }
-`);
+  type Query {
+    artist: Artist,
+    song: Song,
+    setlist(artist: String): Setlist
+  }
+`;
 
-  const getSongs = () => [{ name: 'Run to the hills' }, { name: 'Sea of madness' }];
-  const getSetlists = () => [{ name: 'thesetlist' }];
+  const getSongs = () => [{ id: '1', name: 'Run to the hills' }, { id: '2', name: 'Sea of madness' }];
+  const getSetlists = () => [{ id: '1', name: 'thesetlist' }, { id: '2', name: 'thesetldafafist' }];
 
-  const root = {
-    setlist: {
-      id: (obj, args) => {
-        console.log(obj, args);
-        return '1';
+  const resolvers = {
+    Query: {
+      artist: () => {
+        return 'bruuuuuuuuce';
       },
-      name: () => 'ho',
-      songs: (obj, args, context) => {
-        console.log(obj, args);
-        return getSongs();
+      song: () => getSongs()[0],
+      setlist: () => getSetlists()
+    },
+    Setlist: {
+      // hejsan: () => { return 'dsfasf'},
+      id: (obj) => {
+        return obj.id;
+      },
+      songs: (obj) => {
+        console.log(obj);
+        return getSongs().filter(song => song.id === obj[0].id)
       }
     },
-    song: (obj, args) => {
-      setlist: () => {
+    Song: {
+      setlist: (_, args) => {
+        console.log('arrtgsgsgs', args);
         return getSetlists();
-      };
+      }
     }
   };
 
+  const graphQLSchema = makeExecutableSchema({
+    typeDefs,
+    resolvers
+  });
+
   return {
     statusCode: 200,
-    body: JSON.stringify(await graphql(schema, graphqlPayload.query, root))
+    body: JSON.stringify(await graphql(graphQLSchema, graphqlPayload.query, {}))
   };
 };
 
