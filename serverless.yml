@@ -54,6 +54,9 @@ functions:
       - http:
           path: /
           method: get
+      - http:
+          path: /graphql
+          method: post
 
 
 #    The following are a few example events you can configure
