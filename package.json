@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "serverles offline start"
+    "start": "serverless offline start"
   },
   "devDependencies": {
     "@babel/core": "7.0.0",
